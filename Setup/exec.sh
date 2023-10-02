@@ -1,3 +1,5 @@
+#!/bin/bash
+
 disk_name ()
 {
     read -p "Enter your disk drive name (eg. hda,sda,sdb):: " d_name

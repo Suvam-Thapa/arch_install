@@ -1,3 +1,5 @@
+#!/bin/bash
+
 TimeZone()
 {
     t_zone="$(curl --fail https://ipapi.co/timezone)"
