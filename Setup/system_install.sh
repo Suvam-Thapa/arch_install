@@ -1,4 +1,5 @@
 #!/bin/bash
+
 source $Setup_Dir/exec.sh
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
@@ -9,6 +10,8 @@ timedatectl set-ntp true
 umount -A --recursive /mnt
 
 cfdisk /dev/$d_name
+
+partprobe
 
 mkfs.fat -F 32 /dev/${d_name}1
 mkswap /dev/${d_name}2

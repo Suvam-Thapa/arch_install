@@ -33,4 +33,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 systemctl enable NetworkManager
 
+sed -i 's/^#HookDir/HookDir/' /etc/pacman.conf
+sed -i 's/^#Color/Color/' /etc/pacman.conf
+
 exit

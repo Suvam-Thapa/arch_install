@@ -1,17 +1,10 @@
+#!/bin/bash
+
 Usr_Conf_Dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 U_say () {
-echo -ne " 
-
-╔══╦╗─────╔╗─╔╗╔╗───╔╗──╔═╦╗──────────╔╗╔╗─────╔══╗
-║══╣╚╦═╗╔╦╣╚╗║╚╣╚╦═╗╠╬═╦╣═╣╚╦═╗╔╗╔╗╔═╗║╚╬╬═╦═╦╗╚═╗║
-╠══║╔╣╬╚╣╔╣╔╣║╔╣║║╩╣║║║║╠═║╔╣╬╚╣╚╣╚╣╬╚╣╔╣║╬║║║║─╔╔╝
-╚══╩═╩══╩╝╚═╝╚═╩╩╩═╝╚╩╩═╩═╩═╩══╩═╩═╩══╩═╩╩═╩╩═╝─╠╣
-────────────────────────────────────────────────╚╝
-
-" 
 while true; do
-    read -p "(Yy/Nn): " yn
+    read -p "Do you want to start the installation ? (Yy/Nn): " yn
     case $yn in
         [Yy]* )
             echo "Installation started."

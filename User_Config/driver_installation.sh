@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo -ne "
 
 ╭━━╮ ╭╮         ╭╮  ╭━┳╮          ╭╮╭╮
@@ -9,19 +11,26 @@ echo -ne "
 
 Driver () {
 while true; do
-    read -p "Driver options to install :
+read -p "
+
+Driver options for installation :
+
     1.nvidia-390xx                 2.nvidia-340xx                3.nvidia-470xx
     
 Provide a num (1,2,3) --> " input_d
+
     case $input_d in
         [1]* )
-            yay -S nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx virtualgl
+            yay -S nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings 
+            yay -S opencl-nvidia-390xx virtualgl
         break;;
         [2]* ) 
-            yay -S nvidia-340xx-dkms nvidia-340xx-utils nvidia-340xx-settings opencl-nvidia-340xx virtualgl
+            yay -S nvidia-340xx-dkms nvidia-340xx-utils nvidia-340xx-settings 
+            yay -S opencl-nvidia-340xx virtualgl
         break;;
 	    [3]* )
-	        yay -s nvidia-470xx-dkms nvidia-470xx-utils nvidia-470xx-settings opencl-nvidia-470xx virtualgl
+	        yay -S nvidia-470xx-dkms nvidia-470xx-utils nvidia-470xx-settings 
+            yay -S opencl-nvidia-470xx virtualgl
 	    break;;
         * ) echo "Please provide a num from above options";;
 	esac
@@ -29,14 +38,20 @@ done
 }
 
 Kernel () {
-read -p "Choose Kernal you're using (options) :
+read -p "
+
+Choose Kernal you're using (options) :
+
     1.linux-zen              2.linux-hardened             3.linux
    
 Provide a num (1,2,3) --> " input_k
 }
 
 Display_manager () {
-    read -p "Choose display manager you're using (options) :
+read -p "
+
+Choose display manager you're using (options) :
+
     1. SDDM               2. Light DM                  3. GDM 
 
 Provide a num (1,,2,3) --> " input_dm
@@ -129,8 +144,6 @@ sudo chown -hR root:root /etc/modprobe.d/blacklist.conf
 # Pacman hook for nvidia (avoid the possibility of forgetting to update initramfs after an NVIDIA driver upgrade) # Arch wiki
 
 sudo mkdir /etc/pacman.d/hooks
-sed -i 's/^#HookDir/HookDir/' /etc/pacman.conf
-sed -i 's/^#Color/Color/' /etc/pacman.conf
 
 sudo printf "[Trigger]
 Operation=Install
@@ -180,10 +193,5 @@ sudo mkinitcpio -P
 # Done 
 
 echo -ne "
----* Drivers installed *---
-╭━╮      ╭━╮      ╭╮    ╭╮
-┃╋┣╮╭━┳━╮┃━╋━╮╭┳┳━┫╰┳━┳━┫╰╮
-┃╭┫╰┫┻┫╋╰╋━┃┻┫┃╭┫┻┫╋┃╋┃╋┃╭┫
-╰╯╰━┻━┻━━┻━┻━╯╰╯╰━┻━┻━┻━┻━╯
-
+---* Drivers installed  please reboot  !*---                            
 "
