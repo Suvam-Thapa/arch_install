@@ -66,7 +66,7 @@ read -p "
 Please select a window manager for installation.
 
 choices includes :
-1. BSPWM                  2. awesome                3. qtile          4. I3
+1. BSPWM                  2. awesome                3. qtile
 
 Note : If You don't want to install any enter Nn(no)
 
