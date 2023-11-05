@@ -13,5 +13,8 @@ HostName ()
     read -p "Please provide a name for the host : " h_name
 }
 UserName
+clear
 HostName
+clear
 TimeZone
+clear

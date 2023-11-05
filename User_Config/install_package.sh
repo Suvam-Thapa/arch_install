@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # I will make another script for installing wayland with sway, hypr and more 
+echo " Note : The application that will be downloaded are not a Git version, but a stable one."
 
 D_server () {
 while true; do
@@ -17,7 +18,7 @@ choose (1 || Nn): " _install_d_server
 
   case $_install_d_server in
     [1]* )
-      sudo pacman -S --noconfirm xorg --ignore xf86-video-vesa
+      sudo pacman -S xorg --ignore xf86-video-vesa
     break;;
     [Nn]* )
     break;;
@@ -65,7 +66,7 @@ read -p "
 Please select a window manager for installation.
 
 choices includes :
-1. BSPWM                  2. awesome                3. qtile 
+1. BSPWM                  2. awesome                3. qtile          4. I3
 
 Note : If You don't want to install any enter Nn(no)
 
@@ -149,9 +150,13 @@ done
 }
 
 D_server
+clear
 window_manager
+clear
 login_manager
+clear
 terminal
+clear
 
 # Prompt user for additional software installation (optional)
 read -p "Do you want to install additional software? (y/n): " additional_software_choice
@@ -161,4 +166,3 @@ if [ "$additional_software_choice" == "y" ]; then
   read -p "Provide space-separated names of other applications to install: " package_list
   yay -S $package_list
 fi
-

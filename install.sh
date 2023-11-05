@@ -41,7 +41,7 @@ echo -ne "
 $Setup_Dir/system_install.sh
 
 mv $Workspace_Dir/Configuration/ /mnt
-mv $Workspace_Dir/User_Config/ /mnt
+mv $Workspace_Dir/User_Config/ /home/$u_name
 
 arch-chroot /mnt ./Configuration/config_install.sh
 
