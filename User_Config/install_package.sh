@@ -174,6 +174,10 @@ choose (1 || 2 || Nn): " file_manager_choice
 done
 }
 
+O_drivers () {
+  yay -S --noconfirm mkinitcpio-firmware --ignore linux
+}
+
 D_server
 
 clear
@@ -189,3 +193,4 @@ clear
 F_manager
 
 clear
+O_drivers
