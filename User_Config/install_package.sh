@@ -35,11 +35,11 @@ read -p "
 Please select a login manager that suits your preferences for installation.
 
 options includes :
-1. SDDM                  2. Light DM                3. GDM
+1. SDDM                  2. Light DM               
 
 Note : If You don't want to install enter Nn(no)
 
-choose (1 || 2 || 3 || Nn): " login_manager_choice
+choose (1 || 2 || Nn): " login_manager_choice
 
   case $login_manager_choice in
     [1]* )
@@ -48,9 +48,6 @@ choose (1 || 2 || 3 || Nn): " login_manager_choice
     [2]* ) 
       sudo pacman -S --noconfirm lightdm lightdm-gtk-greeter
     break;;
-	  [3]* )
-      sudo pacman -S --noconfirm gdm
-	  break;;
     [Nn]* )
     break;;
       * ) 
@@ -83,7 +80,7 @@ choose (1 || 2 || 3 || Nn): " wm_choice
     break;;
     [2]* ) 
       # Install awesome
-      yay -S awesome-git
+      yay -S --noconfirm awesome-git
       mkdir ~/.config/awesome/
       sudo cp /etc/xdg/awesome/rc.lua ~/.config/awesome/
     break;;
@@ -149,20 +146,46 @@ choose (1 || 2 || 3 || Nn): " term_choice
 done 
 }
 
+F_manager () {
+while true; do
+read -p "
+
+Please select a file manager that suits your preferences for installation.
+
+options includes :
+1. Thunar                  2. PCManFM              
+
+Note : If You don't want to install enter Nn(no)
+
+choose (1 || 2 || Nn): " file_manager_choice
+
+  case $file_manager_choice in
+    [1]* )
+      sudo pacman -S --noconfirm thunar tumbler thunar-volman
+    break;;
+    [2]* ) 
+      sudo pacman -S --noconfirm pcmanfm
+    break;;
+    [Nn]* )
+    break;;
+      * ) 
+      echo "Invalid choice. Please enter a valid option ! ";;
+	esac
+done
+}
+
 D_server
+
 clear
 window_manager
+
 clear
 login_manager
+
 clear
 terminal
+
 clear
+F_manager
 
-# Prompt user for additional software installation (optional)
-read -p "Do you want to install additional software? (y/n): " additional_software_choice
-
-if [ "$additional_software_choice" == "y" ]; then
-  # Prompt for additional software packages
-  read -p "Provide space-separated names of other applications to install: " package_list
-  yay -S $package_list
-fi
+clear

@@ -9,6 +9,8 @@ echo -ne "
 
 "
 
+clear
+
 Driver () {
 while true; do
 read -p "
@@ -21,16 +23,16 @@ Provide a num (1,2,3) --> " input_d
 
     case $input_d in
         [1]* )
-            yay -S nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings 
-            yay -S opencl-nvidia-390xx 
+            yay -S --noconfirm nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings 
+            yay -S --noconfirm opencl-nvidia-390xx 
         break;;
         [2]* ) 
-            yay -S nvidia-340xx-dkms nvidia-340xx-utils nvidia-340xx-settings 
-            yay -S opencl-nvidia-340xx 
+            yay -S --noconfirm nvidia-340xx-dkms nvidia-340xx-utils nvidia-340xx-settings 
+            yay -S --noconfirm opencl-nvidia-340xx 
         break;;
 	    [3]* )
-	        yay -S nvidia-470xx-dkms nvidia-470xx-utils nvidia-470xx-settings 
-            yay -S opencl-nvidia-470xx 
+	        yay -S --noconfirm nvidia-470xx-dkms nvidia-470xx-utils nvidia-470xx-settings 
+            yay -S --noconfirm opencl-nvidia-470xx 
 	    break;;
         * ) echo "Please provide a num from above options";;
 	esac
@@ -58,7 +60,9 @@ Provide a num (1,,2,3) --> " input_dm
 }
 
 Kernel
+clear
 Display_manager
+clear
 Driver
 
 # Using NVIDIA graphics only  # Arch wiki
@@ -173,6 +177,8 @@ elif [[ $input_d = 3 ]]
 then
     sed -i 's/^Target=nvidia/Target=nvidia-470xx-dkms/' nvidia.hook
 fi
+
+# kernal in use .. nvhook
 
 if [[ $input_k = 1 ]]
 then

@@ -18,10 +18,10 @@ echo "$h_name" >> /etc/hostname
 
 clear
 
-echo "Set root pass"
+echo "Set root pass :: "
 passwd
 
-echo "Set user pass"
+echo "Set user pass :: "
 useradd -mG wheel $u_name 
 passwd $u_name
 

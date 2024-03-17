@@ -26,11 +26,13 @@ A_output=$(lspci | grep -E "Radeon|AMD")
 
 if [[ -n "$I_output" ]]
 then
-    _install="xf86-video-intel libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils mesa lib32-mesa"
+    _install="xf86-video-intel libva-intel-driver libva-mesa-driver libvdpau-va-gl vulkan-intel libva-utils mesa"
 elif [[ -n "$A_output" ]]
 then
     _install="xf86-video-amdgpu"
 fi
 }
+
+
 disk_name
 Microcode_gpu
