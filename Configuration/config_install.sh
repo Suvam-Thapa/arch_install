@@ -28,8 +28,14 @@ passwd $u_name
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 sed -i 's/^GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub
+
+if [ -d /sys/firmware/efi ] && dmesg | grep -q "EFI v"; then
 grub-install
 grub-mkconfig -o /boot/grub/grub.cfg
+else
+grub-install --target-i386-pc $disk_name
+grub-mkconfig -o /boot/grub/grub.cfg
+fi
 
 systemctl enable NetworkManager
 
