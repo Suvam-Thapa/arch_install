@@ -8,7 +8,31 @@ timedatectl set-ntp true
 
 umount -A --recursive /mnt
 
-cfdisk /dev/$d_name
+fdisk "/dev/$d_name" << EOF
+g
+n
+1
+2048
++1G
+t
+1
+n
+2
+
++4G
+t
+2
+19
+n
+3
+
++160G
+n
+4
+
+
+w
+EOF
 
 partprobe
 clear
