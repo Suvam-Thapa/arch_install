@@ -33,7 +33,7 @@ if [ -d /sys/firmware/efi ] && dmesg | grep -q "EFI v"; then
 grub-install
 grub-mkconfig -o /boot/grub/grub.cfg
 else
-grub-install --target-i386-pc $disk_name
+grub-install --target=i386-pc $disk_name
 grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
