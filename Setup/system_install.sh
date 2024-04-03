@@ -2,6 +2,14 @@
 
 source $Setup_Dir/exec.sh
 
+pacman -Sy --noconfirm archlinux-keyring
+
+timedatectl set-ntp true
+
+umount -A --recursive /mnt
+
+swapoff -a
+
 sys_uefi () {
 fdisk "/dev/$d_name" << EOF
 g
@@ -84,12 +92,6 @@ mkdir /mnt/home
 mount /dev/${d_name}3 /mnt/home
 swapon /dev/${d_name}1
 }
-
-pacman -Sy --noconfirm archlinux-keyring
-
-timedatectl set-ntp true
-
-umount -A --recursive /mnt
 
 if [ -d /sys/firmware/efi ] && dmesg | grep -q "EFI v"; then
     sys_uefi
