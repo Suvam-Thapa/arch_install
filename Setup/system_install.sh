@@ -2,12 +2,7 @@
 
 source $Setup_Dir/exec.sh
 
-pacman -Sy --noconfirm archlinux-keyring
-
-timedatectl set-ntp true
-
-umount -A --recursive /mnt
-
+sys_uefi () {
 fdisk "/dev/$d_name" << EOF
 g
 n
@@ -50,6 +45,54 @@ mkdir /mnt/home
 mount /dev/${d_name}1 /mnt/boot/efi
 mount /dev/${d_name}4 /mnt/home
 swapon /dev/${d_name}2
+}
+
+sys_legacy () {
+fdisk "/dev/$d_name" << EOF
+o
+n
+1
+2048
++4G
+t
+19
+n
+2
+
++160G
+n
+3
+
+
+w
+EOF
+
+partprobe
+clear
+
+mkswap /dev/${d_name}1
+mkfs.ext4 /dev/${d_name}2
+mkfs.ext4 /dev/${d_name}3
+
+mount /dev/${d_name}2 /mnt
+
+mkdir /mnt/home
+
+mount /dev/${d_name}3 /mnt/home
+swapon /dev/${d_name}1
+}
+
+pacman -Sy --noconfirm archlinux-keyring
+
+timedatectl set-ntp true
+
+umount -A --recursive /mnt
+
+if [ -d /sys/firmware/efi ] && dmesg | grep -q "EFI v"; then
+    sys_uefi
+else
+    sys_legacy
+fi
 
 pacstrap -K /mnt base base-devel linux-zen linux-firmware linux-zen-headers $_install $_ucode pipewire pipewire-pulse pavucontrol xdg-utils xdg-user-dirs networkmanager gvfs ntfs-3g qt6-base qt5-base gtk4 gtk3 gtk2 grub efibootmgr unzip vim git --noconfirm
 clear
