@@ -100,6 +100,7 @@ else
 fi
 
 pacstrap -K /mnt base base-devel linux-zen linux-firmware linux-zen-headers $_install $_ucode pipewire pipewire-pulse pavucontrol xdg-utils xdg-user-dirs networkmanager gvfs ntfs-3g qt6-base qt5-base gtk4 gtk3 gtk2 grub efibootmgr unzip vim git --noconfirm
+
 clear
 
 genfstab -U /mnt >> /mnt/etc/fstab
