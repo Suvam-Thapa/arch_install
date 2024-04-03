@@ -10,14 +10,14 @@ n
 2048
 +1G
 t
-1
+uefi
 n
 2
 
 +4G
 t
 2
-19
+swap
 n
 3
 
@@ -51,16 +51,19 @@ sys_legacy () {
 fdisk "/dev/$d_name" << EOF
 o
 n
+p
 1
 2048
 +4G
 t
-19
+swap
 n
+p
 2
 
 +160G
 n
+p
 3
 
 
