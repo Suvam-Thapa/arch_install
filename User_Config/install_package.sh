@@ -240,7 +240,7 @@ Note : If You don't want to install enter Nn(no)
 
   case $deff_app_choice in
     [Yy]* )
-      yay -S --needed --noconfirm linux-wifi-hotspot brave-bin visual-studio-code-bin dnsmasq
+      yay -S --needed --noconfirm linux-wifi-hotspot brave-bin visual-studio-code-bin dnsmasq polkit-gnome
     break;;
     [Nn]* )
     break;;
