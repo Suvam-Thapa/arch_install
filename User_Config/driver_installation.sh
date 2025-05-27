@@ -150,6 +150,17 @@ sudo printf "blacklist nouveau" | cat >> blacklist.conf
 sudo mv blacklist.conf /etc/modprobe.d/
 sudo chown -hR root:root /etc/modprobe.d/blacklist.conf
 
+# xprofile for nvidia and polkit
+sudo tee ~/.xprofile <<EOF
+if ! pgrep -f nvidia-settings > /dev/null; then
+    nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
+fi
+if ! pgrep -f polkit-gnome-authentication-agent-1 > /dev/null; then
+    /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+fi
+EOF
+sudo chmod +x ~/.xprofile
+
 sudo systemctl mask dev-tpmrm0.device
 
 # Pacman hook for nvidia (avoid the possibility of forgetting to update initramfs after an NVIDIA driver upgrade) # Arch wiki
