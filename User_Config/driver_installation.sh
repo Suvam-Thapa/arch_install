@@ -150,6 +150,8 @@ sudo printf "blacklist nouveau" | cat >> blacklist.conf
 sudo mv blacklist.conf /etc/modprobe.d/
 sudo chown -hR root:root /etc/modprobe.d/blacklist.conf
 
+sudo systemctl mask dev-tpmrm0.device
+
 # Pacman hook for nvidia (avoid the possibility of forgetting to update initramfs after an NVIDIA driver upgrade) # Arch wiki
 
 sudo mkdir /etc/pacman.d/hooks
