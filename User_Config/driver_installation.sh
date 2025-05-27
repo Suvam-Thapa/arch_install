@@ -75,14 +75,17 @@ sudo printf "Section \"OutputClass\"
     Identifier \"intel\"
     MatchDriver \"i915\"
     Driver \"modesetting\"
+    Option \"UseEDID\" \"true\"
+    Option \"ModeValidation\" \"NoVirtualSizeCheck\"
 EndSection
 
 Section \"OutputClass\"
     Identifier \"nvidia\"
     MatchDriver \"nvidia-drm\"
     Driver \"nvidia\"
-    Option \"AllowEmptyInitialConfiguration\"
     Option \"PrimaryGPU\" \"yes\"
+    Option \"AllowEmptyInitialConfiguration\" \"true\"
+    Option \"AllowExternalGpus\" \"true\"
     ModulePath \"/usr/lib/nvidia/xorg\"
     ModulePath \"/usr/lib/xorg/modules\"
 EndSection
