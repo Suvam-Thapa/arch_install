@@ -109,7 +109,7 @@ choose (1 || 2 || 3 || 4 || Nn): " wm_choice
     cp config.def.h config.h
     sudo pacman -S --noconfirm dmenu
     sudo make clean install
-
+    sudo mkdir /usr/share/xsessions
     sudo tee /usr/share/xsessions/dwm.desktop <<EOF
 [Desktop Entry]
 Name=Dwm
@@ -228,6 +228,28 @@ choose (1 || 2 || Nn) [Default : Thunar: 1]: " file_manager_choice
 done
 }
 
+Def_applications () {
+while true; do
+read -p "
+            
+This script will install [brave,code,hotspot_app]. Do you want to continue? (y/n):
+Note : If You don't want to install enter Nn(no)
+[Default : Yes]: " deff_app_choice
+
+  deff_app_choice=${deff_app_choice:-Y}
+
+  case $deff_app_choice in
+    [Yy]* )
+      yay -S --needed --noconfirm linux-wifi-hotspot brave-bin visual-studio-code-bin dnsmasq
+    break;;
+    [Nn]* )
+    break;;
+      * ) 
+      echo "Invalid choice. Please enter a valid option ! ";;
+	esac
+done
+}
+
 O_drivers () {
   yay -S --needed --noconfirm mkinitcpio-firmware --ignore linux
 }
@@ -245,6 +267,9 @@ terminal
 
 clear
 F_manager
+
+clear
+Def_applications
 
 clear
 O_drivers
