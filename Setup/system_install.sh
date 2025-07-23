@@ -99,6 +99,14 @@ else
     sys_legacy
 fi
 
+#mkdir -p /tmp/kernels
+#cd /tmp/kernels
+#curl -LO https://archive.archlinux.org/packages/l/linux-zen/linux-zen-6.6.zen1-1-x86_64.pkg.tar.zst
+#curl -LO https://archive.archlinux.org/packages/l/linux-zen-headers/linux-zen-headers-6.6.zen1-1-x86_64.pkg.tar.zst
+#sudo pacman -U linux-zen-6.6.zen1-1-x86_64.pkg.tar.zst linux-zen-headers-6.6.zen1-1-x86_64.pkg.tar.zst
+#sudo mkinitcpio -P
+
+
 pacstrap -K /mnt base base-devel linux-zen linux-firmware linux-zen-headers mesa intel-ucode pipewire pipewire-pulse pavucontrol xdg-utils xdg-user-dirs networkmanager gvfs ntfs-3g grub efibootmgr unzip vim git --noconfirm
 clear
 
