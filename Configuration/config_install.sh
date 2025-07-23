@@ -55,6 +55,7 @@ sed -i 's/^#Color/Color/' /etc/pacman.conf
 sudo tee -a /etc/pacman.conf >/dev/null <<'EOF'
 
 # --- lock kernel to 6.6.zen1 ---
+[options]
 IgnorePkg = linux-zen linux-zen-headers
 EOF
 
