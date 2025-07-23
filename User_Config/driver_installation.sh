@@ -61,16 +61,17 @@ Provide a num (1,,2,3) -->[Default: sddm: 1] " input_dm
     input_dm=${input_dm:-1}
 }
 
-cd /tmp
+# Note installing nvidia utils using gcc 13 doesn't works so first install it using new gcc after that compile dkms driver
+#cd /tmp
 
-curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
-curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
+#curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
+#curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
 
-cd
+#cd
 
-sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
+#sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
 
-export CC=gcc-13
+#export CC=gcc-13
 
 Kernel
 clear
