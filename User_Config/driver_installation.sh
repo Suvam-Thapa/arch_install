@@ -244,5 +244,5 @@ sudo mkinitcpio -P
 # Done 
 
 echo -ne "
----* Drivers installed  please reboot  !*---                            
+---* Drivers installed  please reboot ( you can re-install gcc if driver installed without error ) !*---                            
 "
