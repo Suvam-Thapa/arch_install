@@ -61,6 +61,17 @@ Provide a num (1,,2,3) -->[Default: sddm: 1] " input_dm
     input_dm=${input_dm:-1}
 }
 
+cd /tmp
+
+curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
+curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
+
+cd
+
+sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
+
+export CC=gcc-13
+
 Kernel
 clear
 Display_manager
@@ -93,6 +104,22 @@ EndSection
 
 sudo mv 10-nvidia-drm-outputclass.conf /etc/X11/xorg.conf.d/
 sudo chown -hR root:root /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf
+
+# Touchpad 
+sudo pacman -S xf86-input-libinput --noconfirm
+
+sudo tee /etc/X11/xorg.conf.d/40-libinput.conf >/dev/null <<'EOF'
+Section "InputClass"
+Identifier "libinput touchpad catchall"
+MatchIsTouchpad "on"
+MatchDevicePath "/dev/input/event*"
+Driver "libinput"
+Option "Tapping" "on"
+Option "TappingButtonMap" "lmr"
+Option "ClickMethod" "clickfinger"
+Option "NaturalScrolling" "true"
+EndSection
+EOF
 
 # Setting configuration for display managers
 
@@ -151,7 +178,7 @@ sudo mv blacklist.conf /etc/modprobe.d/
 sudo chown -hR root:root /etc/modprobe.d/blacklist.conf
 
 # xprofile for nvidia and polkit
-sudo tee ~/.xprofile <<EOF
+sudo tee ~/.xprofile >/dev/null << 'EOF'
 if ! pgrep -f nvidia-settings > /dev/null; then
     nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
 fi
