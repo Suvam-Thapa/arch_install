@@ -232,7 +232,7 @@ Def_applications () {
 while true; do
 read -p "
             
-This script will install [brave,code,hotspot_app]. Do you want to continue? (y/n):
+This script will install [firefox, hotspot_app]. Do you want to continue? (y/n):
 Note : If You don't want to install enter Nn(no)
 [Default : Yes]: " deff_app_choice
 
@@ -240,7 +240,7 @@ Note : If You don't want to install enter Nn(no)
 
   case $deff_app_choice in
     [Yy]* )
-      yay -S --needed --noconfirm linux-wifi-hotspot brave-bin code dnsmasq polkit-gnome
+      yay -S --needed --noconfirm linux-wifi-hotspot firefox dnsmasq polkit-gnome zoxide vlc vlc-plugin-aalib vlc-plugin-aom vlc-plugin-aribb24 vlc-plugin-aribb25 vlc-plugin-ass vlc-plugin-avahi vlc-plugin-bluray vlc-plugin-caca vlc-plugin-cddb vlc-plugin-dca vlc-plugin-dvb vlc-plugin-dvd vlc-plugin-ffmpeg vlc-plugin-firewire vlc-plugin-fluidsynth vlc-plugin-freetype vlc-plugin-gme vlc-plugin-gstreamer vlc-plugin-jack vlc-plugin-lirc vlc-plugin-live555 vlc-plugin-lua vlc-plugin-mad vlc-plugin-matroska vlc-plugin-mdns vlc-plugin-modplug vlc-plugin-mpeg2 vlc-plugin-mtp vlc-plugin-musepack vlc-plugin-nfs vlc-plugin-notify vlc-plugin-pulse vlc-plugin-samplerate vlc-plugin-sdl vlc-plugin-sftp vlc-plugin-smb vlc-plugin-soxr vlc-plugin-srt vlc-plugin-svg vlc-plugin-udev vlc-plugin-upnp vlc-plugin-x264 vlc-plugin-x265 vlc-plugin-zvbi vlc-plugins-extra vlc-plugins-visualization gst-plugins-bad gst-plugins-base gst-plugins-good gst-plugins-ugly gst-libav xclip wget ripgrep lua51 luarocks libmpeg2 fd ffmpeg cmake clang ninja nodejs npm pnpm gnome-screenshot 
     break;;
     [Nn]* )
     break;;
