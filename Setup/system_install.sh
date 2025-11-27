@@ -99,7 +99,7 @@ else
     sys_legacy
 fi
 
-pacstrap -K /mnt base base-devel linux-firmware mesa intel-ucode pipewire pipewire-pulse pavucontrol xdg-utils xdg-user-dirs networkmanager gvfs ntfs-3g grub efibootmgr unzip vim git --noconfirm
+pacstrap -K /mnt base base-devel linux-firmware mesa intel-ucode pipewire pipewire-pulse pavucontrol xdg-utils xdg-user-dirs networkmanager gvfs ntfs-3g grub efibootmgr 7zip vim git --noconfirm
 clear
 
 genfstab -U /mnt >> /mnt/etc/fstab

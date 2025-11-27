@@ -189,8 +189,6 @@ fi
 EOF
 sudo chmod +x ~/.xprofile
 
-sudo systemctl mask dev-tpmrm0.device
-
 # Pacman hook for nvidia (avoid the possibility of forgetting to update initramfs after an NVIDIA driver upgrade) # Arch wiki
 
 sudo mkdir /etc/pacman.d/hooks

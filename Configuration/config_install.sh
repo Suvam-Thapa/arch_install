@@ -48,15 +48,21 @@ grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
 systemctl enable NetworkManager
+systemctl mask dev-tpmrm0.device
 
 sed -i 's/^#HookDir/HookDir/' /etc/pacman.conf
 sed -i 's/^#Color/Color/' /etc/pacman.conf
 
 sudo tee -a /etc/pacman.conf >/dev/null <<'EOF'
 
+
 # --- lock kernel to 6.6.zen1 ---
 [options]
 IgnorePkg = linux-zen linux-zen-headers
+
+# --- multilib support ---
+[multilib]
+Include = /etc/pacman.d/mirrorlist
 EOF
 
 exit
