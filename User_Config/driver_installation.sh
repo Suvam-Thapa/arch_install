@@ -189,6 +189,35 @@ sudo pacman -S --noconfirm gcc
 
 }
 
+Bash () {
+
+tee ~/.bashrc >/dev/null <<'EOF'
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+eval "$(zoxide init bash)"
+
+alias ls='ls --color=auto -sah'
+alias grep='grep --color=auto'
+alias svim='sudo -E nvim' 
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
+PS1='[\#]\n[\@] [\d]\n[\u@\h \W]\$ '
+EOF
+
+}
+
 Pre_install
 
 clear
@@ -226,6 +255,9 @@ Nv_hook
 
 clear
 Gcc_cv
+
+clear
+Bash
 clear
 
 # Mkinitcpio generate (Initial ramdisk)
