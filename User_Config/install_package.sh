@@ -1,116 +1,134 @@
 #!/bin/bash
 
+Conf_Dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 D_server () {
-  while true; do
-    read -p "
-
-Please choose a display server to install:
-Options only include (for now):
-
-1. Xorg
-
-Note: If you don't want to install, enter N/n (no)
-
-Choose (1 / N/n) [Default: Xorg: 1]: " _install_d_server
-
-    _install_d_server=${_install_d_server:-1}
-
-    case $_install_d_server in
-      1)
         echo "Installing Xorg (xorg-server + xorg-xinit)..."
         sudo pacman -S --needed --noconfirm xorg-server xorg-xinit xorg-apps
-        break
-        ;;
-      [Nn]*)
-        echo "Skipping Xorg installation."
-        break
-        ;;
-      *)
-        echo "Invalid choice. Please enter either '1' or 'N/n'."
-        ;;
-    esac
-  done
 }
 
 login_manager () {
-  while true; do
-    read -p "
-
-Please select a login manager that suits your preferences for installation.
-
-Options include:
-1. SDDM                  2. LightDM               
-
-Note: If you don't want to install, enter N/n (no)
-
-Choose (1 / 2 / N/n) [Default: SDDM: 1]: " login_manager_choice
-
-    login_manager_choice=${login_manager_choice:-1}
-
-    case $login_manager_choice in
-      1)
         echo "Installing SDDM..."
         sudo pacman -S --needed --noconfirm sddm
         sudo systemctl enable sddm
-        break
-        ;;
-      2)
-        echo "Installing LightDM with GTK greeter..."
-        sudo pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter
-        sudo systemctl enable lightdm
-        break
-        ;;
-      [Nn]*)
-        echo "Skipping login manager installation."
-        break
-        ;;
-      *)
-        echo "Invalid choice. Please enter '1', '2', or 'N/n'."
-        ;;
-    esac
-  done
 }
 
 window_manager () {
-while true; do 
-read -p "
-
-Please select a window manager for installation.
-
-choices includes :
-1. DWM(alacritty + rofi + sddm)                  2. awesome                3. qtile                4. BSPWM
-
-Note : If You don't want to install any enter Nn(no)
-
-choose (1 || 2 || 3 || 4 || Nn): " wm_choice
-
-  case $wm_choice in
-    [1]* )
-      # Install DWM
-    dwmdir="$HOME/.config/dwm"
-
-    if [ ! -d "$dwmdir" ]; then
+        echo "Installing DWM..."
         mkdir -p ~/.config
-        cd ~/.config || exit 1
+        cd ~/.config
         git clone https://git.suckless.org/dwm 
         cd ~/.config/dwm/
-    else
-        echo "Using existing DWM in ~/.config/dwm"
-        cd "$dwmdir" || { echo "Failed to enter dwmdir"; exit 1; }
-    fi
 
-    # --- PATCHES START HERE ---
-    if grep -q "\"st\",.*" ~/.config/dwm/config.def.h; then
-        sed -i 's/"st"/"alacritty"/' ~/.config/dwm/config.def.h
-    else
-        echo "⚠️ Could not find \"st\" in config.def.h — maybe already patched?"
-    fi
+tee ~/.config/dwm/config.def.h > /dev/null <<'EOF'
+/* appearance */
+static const unsigned int borderpx  = 0;   
+static const unsigned int snap      = 24; 
+static const int showbar            = 0;   
+static const int topbar             = 1;  
+static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=10" };
+static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10";
+static const char col_gray1[]       = "#222222";
+static const char col_gray2[]       = "#444444";
+static const char col_gray3[]       = "#bbbbbb";
+static const char col_gray4[]       = "#eeeeee";
+static const char col_cyan[]        = "#52616B";
+static const char *colors[][3]      = {
+	/*               fg         bg         border   */
+	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },  // col_cyan
+};
 
-    cp config.def.h config.h
-    sudo pacman -S --noconfirm dmenu
-    sudo make clean install
-    sudo mkdir /usr/share/xsessions
-    sudo tee /usr/share/xsessions/dwm.desktop <<EOF
+/* tagging */
+static const char *tags[] = { "1", "2", "3", "4" };
+static const Rule rules[] = { NULL };
+
+/* layout(s) */
+static const float mfact     = 0.50; /* factor of master area size [0.05..0.95] */
+static const int nmaster     = 1;    /* number of clients in master area */
+static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
+static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize */
+
+static const Layout layouts[] = {
+	/* symbol     arrange function */
+	{ "[]=",      tile },    
+	{ "[M]",      monocle },
+};
+
+/* key definitions */
+#define MODKEY Mod1Mask
+#define TAGKEYS(KEY,TAG) \
+	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+
+/* helper for spawning shell commands in the pre dwm-5.0 fashion */
+#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+
+/* commands */
+static char dmenumon[2] = "0"; 
+static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL};
+static const char *termcmd[]  = {"alacritty", NULL};
+static const char *browser[] = {"vivaldi-stable" , "--disable-gpu-vsync", NULL};
+static const char *gnome_screenshot[] = {"gnome-screenshot", "-i", NULL};
+static const char *thunar[] = {"thunar", NULL};
+static const char *brightness_inc[] = {"brightnessctl", "s", "+10%", NULL};
+static const char *brightness_dec[] = {"brightnessctl", "s", "10%-", NULL};
+
+static const Key keys[] = {
+	/* modifier                     key        function        argument */
+	{ MODKEY|ShiftMask,     		XK_c,       quit,           {0} },
+	{ MODKEY|ShiftMask,     		XK_q,       killclient,     {0} },
+	{ MODKEY,           			XK_p,       spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_Return,  zoom,           {0} },
+	{ MODKEY,                		XK_Return,  spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_b,       togglebar,      {0} },
+	{ MODKEY|ShiftMask,             XK_b,       spawn,          {.v = browser } },
+	{ MODKEY,                       XK_e,       spawn,          {.v = thunar } },
+    { MODKEY|ShiftMask,             XK_minus,   spawn,          {.v = brightness_dec } },
+    { MODKEY|ShiftMask,             XK_equal,   spawn,          {.v = brightness_inc } },
+    { MODKEY|ShiftMask,             XK_s,       spawn,          {.v = gnome_screenshot } },
+    { MODKEY,                       XK_Tab,     view,           {0} },
+    { MODKEY,                       XK_h,       setmfact,       {.f = -0.05} },
+    { MODKEY,                       XK_j,       focusstack,     {.i = +1 } },
+    { MODKEY,                       XK_k,       focusstack,     {.i = -1 } },
+    { MODKEY,                       XK_l,       setmfact,       {.f = +0.05} },
+	{ MODKEY,                       XK_i,       incnmaster,     {.i = +1 } },
+    { MODKEY,                       XK_d,       incnmaster,     {.i= -1 } },
+	{ MODKEY,                       XK_n,       setlayout,      {.v = &layouts[1]} },
+	{ MODKEY,                       XK_period,  setlayout,      {.v = &layouts[0]} },
+	TAGKEYS(                        XK_1,                      0)
+	TAGKEYS(                        XK_2,                      1)
+	TAGKEYS(                        XK_3,                      2)
+	TAGKEYS(                        XK_4,                      3)
+};
+
+/* button definitions */
+/* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
+static const Button buttons[] = {
+	/* click                event mask      button          function        argument */
+	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
+	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[1]} },
+	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
+	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
+	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
+	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
+	{ ClkTagBar,            0,              Button1,        view,           {0} },
+	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
+	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
+	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+};
+EOF
+        cp config.def.h config.h
+        sudo pacman -S --noconfirm dmenu
+        sudo make clean install
+        cd
+        sudo mkdir -p /usr/share/xsessions
+
+sudo tee /usr/share/xsessions/dwm.desktop > /dev/null <<'EOF'
 [Desktop Entry]
 Name=Dwm
 Comment=Dynamic Window Manager
@@ -119,138 +137,99 @@ Type=Application
 Keywords=windowmanager;
 EOF
 
-    break;;
-    [2]* ) 
-      # Install awesome
-      yay -S --noconfirm awesome-git
-      mkdir ~/.config/awesome/
-      sudo cp /etc/xdg/awesome/rc.lua ~/.config/awesome/
-    break;;
-	  [3]* )
-      # Install qtile
-      sudo pacman -S --needed --noconfirm qtile
-      mkdir ~/.config/qtile/
-      sudo cp /usr/share/doc/qtile/default_config.py ~/.config/qtile/config.py
-    break;;
-    [4]* )
-      # Install bspwm
-      sudo pacman -S --needed --noconfirm bspwm sxhkd
-      mkdir ~/.config/bspwm
-      sudo cp /usr/share/doc/bspwm/examples/bspwmrc ~/.config/bspwm
-      mkdir ~/.config/sxhkd
-      sudo cp /usr/share/doc/bspwm/examples/sxhkdrc ~/.config/sxhkd
-    break;;
-    [Nn]* )
-    break;;
-      * ) 
-      echo "Invalid choice. Please enter a valid option ! ";;
-  esac
-done
 }
 
 terminal () {
-while true; do
-read -p " 
+        echo "Installing Alacritty..."
+        sudo pacman -S --needed --noconfirm alacritty
+        mkdir -p ~/.config/alacritty/ 
 
-Please choose a terminal to insall 
+tee ~/.config/alacritty/alacritty.toml >/dev/null <<'EOF'
+[general]
+live_config_reload = true
 
-options includes :
+[window]
+padding = { x = 0 , y = 0 }
+dynamic_padding = false 
 
-1. Alacritty                2. Xterm                    3. Kitty
+[font]
+normal = { family = "JetBrainsMono Nerd Font", style = "Regular"}
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold"}
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic"}
+bold_italic = { family = "JetBrainsMono Nerd Font", style = "Bold Italic"}
+size = 12.2
 
-choose (1 || 2 || 3 || Nn) [Defaults: Alacritty: 1]: " term_choice
+[keyboard]
+bindings = [
+  { key = "Back", mods = "Control", chars = "\u001B\u007F" }
+]
 
-  term_choice=${term_choice:-1}
+# [selection]
+# save_to_clipboard = false 
 
-  case $term_choice in
-    [1]* ) 
-      # Install alacritty
-      sudo pacman -S --needed --noconfirm alacritty
-      if [[ "$wm_choice" = 4 ]]
-      then 
-      sed -i 's/urxvt/alacritty/' ~/.config/sxhkd/sxhkdrc
-      elif [[ "$wm_choice" = 2 ]]
-      then
-      sed -i 's/^terminal = "xterm"/terminal = "alacritty"/' ~/.config/awesome/rc.lua
-      fi
-    break;;
-    [2]* ) 
-      # Install xterm
-      sudo pacman -S --needed --noconfirm xterm
-      if [[ "$wm_choice" = 4 ]]
-      then 
-      sed -i 's/urxvt/xterm/' ~/.config/sxhkd/sxhkdrc
-      fi
-    break;;
-    [3]* ) 
-      # Install kitty
-      sudo pacman -S --needed --noconfirm kitty
-      if [[ "$wm_choice" = 4 ]]
-      then 
-      sed -i 's/urxvt/kitty/' ~/.config/sxhkd/sxhkdrc
-      fi
-    break;;
-    [Nn]* )
-    break;;
-      * ) 
-      echo "Invalid choice. Please enter a valid option ! ";;
-  esac
-done 
+# [cursor]
+# style = {shape= "Block"}
+
+# [terminal]
+# osc52 = "CopyPaste"
+
+# [mouse]
+# hide_when_typing = true
+
+# Default colors
+[colors.primary]
+background = '#fdf6e3'
+foreground = '#5c6a72'
+
+# Normal colors
+[colors.normal]
+black = '#5c6a72'
+red = '#f85552'
+green = '#8da101'
+yellow = '#dfa000'
+blue = '#3a94c5'
+magenta = '#df69ba'
+cyan = '#35a77c'
+white = '#e0dcc7'
+
+# Bright Colors
+[colors.bright]
+black = '#5c6a72'
+red = '#f85552'
+green = '#8da101'
+yellow = '#dfa000'
+blue = '#3a94c5'
+magenta = '#df69ba'
+cyan = '#35a77c'
+white = '#e0dcc7'
+EOF
+
 }
 
 F_manager () {
-while true; do
-read -p "
+        echo "Installing Thunar File Manager..."
+        sudo pacman -S --needed --noconfirm thunar tumbler thunar-volman
+}
 
-Please select a file manager that suits your preferences for installation.
+Jetbrains_font () {
+        echo "Installing JetBrainsMono Nerd Font..."
+        curl -fLo /tmp/JetBrainsMono.zip \
+        https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip && \
+        7z x /tmp/JetBrainsMono.zip -o"$HOME/JetBrainsMono" -y && \
+        rm -rf /tmp/JetBrainsMono.zip
 
-options includes :
-1. Thunar                  2. PCManFM              
-
-Note : If You don't want to install enter Nn(no)
-
-choose (1 || 2 || Nn) [Default : Thunar: 1]: " file_manager_choice
-
-  file_manager_choice=${file_manager_choice:-1}
-
-  case $file_manager_choice in
-    [1]* )
-      sudo pacman -S --needed --noconfirm thunar tumbler thunar-volman
-    break;;
-    [2]* ) 
-      sudo pacman -S --needed --noconfirm pcmanfm
-    break;;
-    [Nn]* )
-    break;;
-      * ) 
-      echo "Invalid choice. Please enter a valid option ! ";;
-	esac
-done
+        sudo mv ~/JetBrainsMono/ /usr/share/fonts/
 }
 
 Def_applications () {
-while true; do
-read -p "
-            
-This script will install [firefox, hotspot_app]. Do you want to continue? (y/n):
-Note : If You don't want to install enter Nn(no)
-[Default : Yes]: " deff_app_choice
-
-  deff_app_choice=${deff_app_choice:-Y}
-
-  case $deff_app_choice in
-    [Yy]* )
-      yay -S --needed --noconfirm linux-wifi-hotspot firefox dnsmasq polkit-gnome zoxide vlc vlc-plugin-aalib vlc-plugin-aom vlc-plugin-aribb24 vlc-plugin-aribb25 vlc-plugin-ass vlc-plugin-avahi vlc-plugin-bluray vlc-plugin-caca vlc-plugin-cddb vlc-plugin-dca vlc-plugin-dvb vlc-plugin-dvd vlc-plugin-ffmpeg vlc-plugin-firewire vlc-plugin-fluidsynth vlc-plugin-freetype vlc-plugin-gme vlc-plugin-gstreamer vlc-plugin-jack vlc-plugin-lirc vlc-plugin-live555 vlc-plugin-lua vlc-plugin-mad vlc-plugin-matroska vlc-plugin-mdns vlc-plugin-modplug vlc-plugin-mpeg2 vlc-plugin-mtp vlc-plugin-musepack vlc-plugin-nfs vlc-plugin-notify vlc-plugin-pulse vlc-plugin-samplerate vlc-plugin-sdl vlc-plugin-sftp vlc-plugin-smb vlc-plugin-soxr vlc-plugin-srt vlc-plugin-svg vlc-plugin-udev vlc-plugin-upnp vlc-plugin-x264 vlc-plugin-x265 vlc-plugin-zvbi vlc-plugins-extra vlc-plugins-visualization gst-plugins-bad gst-plugins-base gst-plugins-good gst-plugins-ugly gst-libav xclip wget ripgrep lua51 luarocks libmpeg2 fd ffmpeg cmake clang ninja nodejs npm pnpm gnome-screenshot 
-    break;;
-    [Nn]* )
-    break;;
-      * ) 
-      echo "Invalid choice. Please enter a valid option ! ";;
-	esac
-done
+        echo "Installing Additional Packages..."
+        yay -S --needed --noconfirm $(grep -v '^#' "$Conf_Dir/pkg_list.txt" | grep -v '^$')
 }
 
 D_server
+
+clear
+Jetbrains_font
 
 clear
 window_manager
@@ -264,5 +243,7 @@ terminal
 clear
 F_manager
 
+
 clear
 Def_applications
+clear

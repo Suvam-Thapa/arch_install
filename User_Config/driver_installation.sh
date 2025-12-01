@@ -1,113 +1,73 @@
 #!/bin/bash
 
-echo -ne "
+Pre_install () { 
 
-╭━━╮ ╭╮         ╭╮  ╭━┳╮          ╭╮╭╮
-╰╮╮┣┳╋╋━┳━┳━┳┳╮ ┣╋━┳┫━┫╰┳━╮╭╮╭╮╭━╮┃╰╋╋━┳━┳╮
-╭┻╯┃╭┫┣╮┃╭┫┻┫╭╯ ┃┃┃┃┣━┃╭┫╋╰┫╰┫╰┫╋╰┫╭┫┃╋┃┃┃┃
-╰━━┻╯╰╯╰━╯╰━┻╯  ╰┻┻━┻━┻━┻━━┻━┻━┻━━┻━┻┻━┻┻━╯
+yay -S --needed --noconfirm nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx
 
-"
-
-clear
-
-Driver () {
-while true; do
-read -p "
-
-Driver options for installation :
-
-    1.nvidia-390xx                 2.nvidia-340xx                3.nvidia-470xx
-    
-Provide a num (1,2,3) --> [Default: 390xx: 1] " input_d
-    input_d=${input_d:-1}
-    case $input_d in
-        [1]* )
-            yay -S --needed --noconfirm nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings 
-            yay -S --needed --noconfirm opencl-nvidia-390xx 
-        break;;
-        [2]* ) 
-            yay -S --needed --noconfirm nvidia-340xx-dkms nvidia-340xx-utils nvidia-340xx-settings 
-            yay -S --needed --noconfirm opencl-nvidia-340xx 
-        break;;
-	    [3]* )
-	        yay -S --needed --noconfirm nvidia-470xx-dkms nvidia-470xx-utils nvidia-470xx-settings 
-            yay -S --needed --noconfirm opencl-nvidia-470xx 
-	    break;;
-        * ) echo "Please provide a num from above options";;
-	esac
-done
 }
 
-Kernel () {
-read -p "
+Gcc_v () {
 
-Choose Kernal you're using (options) :
+# Note installing nvidia utils using gcc 13 doesn't works so first install it using new gcc after that compile dkms driver
+cd /tmp
+curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
+curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
+cd
+sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
+export CC=gcc-13
 
-    1.linux-zen              2.linux-hardened             3.linux
-   
-Provide a num (1,2,3) -->[Default: zen: 1] " input_k
-    input_k=${input_k:-1}
+}
+
+Driver () {
+
+yay -S --needed --noconfirm nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings 
+yay -S --needed --noconfirm opencl-nvidia-390xx 
+
 }
 
 Display_manager () {
-read -p "
 
-Choose display manager you're using (options) :
+sudo tee /usr/share/sddm/scripts/Xsetup >/dev/null <<'EOF'
+#!/bin/sh
+xrandr --setprovideroutputsource modesetting NVIDIA-0
+xrandr --auto
+EOF
 
-    1. SDDM               2. Light DM                  3. GDM 
+sudo chmod +x /usr/share/sddm/scripts/Xsetup
 
-Provide a num (1,,2,3) -->[Default: sddm: 1] " input_dm
-    input_dm=${input_dm:-1}
 }
 
-# Note installing nvidia utils using gcc 13 doesn't works so first install it using new gcc after that compile dkms driver
-#cd /tmp
-
-#curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
-#curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
-
-#cd
-
-#sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
-
-#export CC=gcc-13
-
-Kernel
-clear
-Display_manager
-clear
-Driver
-
-# Using NVIDIA graphics only  # Arch wiki
+Nv_xorg () { 
 
 # Configuration for xorg 
-
-sudo printf "Section \"OutputClass\"
-    Identifier \"intel\"
-    MatchDriver \"i915\"
-    Driver \"modesetting\"
-    Option \"UseEDID\" \"true\"
-    Option \"ModeValidation\" \"NoVirtualSizeCheck\"
+sudo tee /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf >/dev/null <<'EOF'
+Section "OutputClass"
+    Identifier "intel"
+    MatchDriver "i915"
+    Driver "modesetting"
+    Option "UseEDID" "true"
+    Option "ModeValidation" "NoVirtualSizeCheck"
 EndSection
 
-Section \"OutputClass\"
-    Identifier \"nvidia\"
-    MatchDriver \"nvidia-drm\"
-    Driver \"nvidia\"
-    Option \"PrimaryGPU\" \"yes\"
-    Option \"AllowEmptyInitialConfiguration\" \"true\"
-    Option \"AllowExternalGpus\" \"true\"
-    ModulePath \"/usr/lib/nvidia/xorg\"
-    ModulePath \"/usr/lib/xorg/modules\"
+Section "OutputClass"
+    Identifier "nvidia"
+    MatchDriver "nvidia-drm"
+    Driver "nvidia"
+    Option "PrimaryGPU" "yes"
+    Option "AllowEmptyInitialConfiguration" "true"
+    Option "AllowExternalGpus" "true"
+    Option "Coolbits" "28"
+    ModulePath "/usr/lib/nvidia/xorg"
+    ModulePath "/usr/lib/xorg/modules"
 EndSection
-" | cat >> 10-nvidia-drm-outputclass.conf
+EOF
 
-sudo mv 10-nvidia-drm-outputclass.conf /etc/X11/xorg.conf.d/
-sudo chown -hR root:root /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf
+}
+
+Touchpad () {
 
 # Touchpad 
-sudo pacman -S xf86-input-libinput --noconfirm
+sudo pacman -S xf86-input-libinput --noconfirm --needed
 
 sudo tee /etc/X11/xorg.conf.d/40-libinput.conf >/dev/null <<'EOF'
 Section "InputClass"
@@ -122,78 +82,83 @@ Option "NaturalScrolling" "true"
 EndSection
 EOF
 
-# Setting configuration for display managers
+}
 
-if [[ $input_dm = 1 ]]          # For SDDM
-then 
-sudo printf "#!/bin/sh
-# Xsetup - run as root before the login dialog appears
-xrandr --setprovideroutputsource modesetting NVIDIA-0
-xrandr --auto
-" | cat >> Xsetup
-    sudo rm -r /usr/share/sddm/scripts/Xsetup
-    sudo mv Xsetup /usr/share/sddm/scripts/
-    sudo chmod +x /usr/share/sddm/scripts/Xsetup
-    sudo chown -hR root:root /usr/share/sddm/scripts/Xsetup
-elif [[ $input_dm = 2 ]]        # For Light DM
-then
-sudo printf "#!/bin/sh
-xrandr --setprovideroutputsource modesetting NVIDIA-0
-xrandr --auto
-" | cat >> display_setup.sh
-    sudo mv display_setup.sh /etc/lightdm/
-    sudo chmod +x /etc/lightdm/display_setup.sh
-    sudo chown -hR root:root /etc/lightdm/display_setup.sh
-    sed -i 's/^#display-setup-script\=/display-setup-script\=\/etc\/lightdm\/display_setup.sh/' /etc/lightdm/lightdm.conf
-elif [[ $input_dm = 3 ]]            # For GDM
-then 
-sudo printf "[Desktop Entry]
-Type=Application
-Name=Optimus
-Exec=sh -c \"xrandr --setprovideroutputsource modesetting NVIDIA-0; xrandr --auto\"
-NoDisplay=true
-X-GNOME-Autostart-Phase=DisplayServer
-" | cat >> optimus.desktop
-    sudo cp optimus.desktop optimus1.desktop
-    sudo mv optimus.desktop /usr/share/gdm/greeter/autostart/
-    sudo chown -hR root:root /usr/share/gdm/greeter/autostart/optimus.desktop
-    sudo mv optimus1.desktop optimus.desktop
-    sudo mv optimus.desktop /etc/xdg/autostart/
-    sudo chown -hR root:root /etc/xdg/autostart/optimus.desktop
-    sed -i 's/^#WaylandEnable\=false/WaylandEnable\=false/' /etc/gdm/custom.conf
-else 
-    echo "Choose a num " 
-    exit
-fi
+Nv_drm () {
 
 # Nvidia_drm modset
+sudo tee /etc/modprobe.d/nvidia-drm-nomodeset.conf >/dev/null <<'EOF'
+options nvidia-drm modeset=1 
+EOF
 
-sudo printf "options nvidia-drm modeset=1" | cat >> nvidia-drm-nomodeset.conf
-sudo mv nvidia-drm-nomodeset.conf /etc/modprobe.d/
-sudo chown -hR root:root /etc/modprobe.d/nvidia-drm-nomodeset.conf
+}
+
+Blacklist () {
 
 # Blacklist nouveau driver
+sudo tee /etc/modprobe.d/blacklist.conf >/dev/null <<'EOF'
+blacklist nouveau
+EOF
 
-sudo printf "blacklist nouveau" | cat >> blacklist.conf
-sudo mv blacklist.conf /etc/modprobe.d/
-sudo chown -hR root:root /etc/modprobe.d/blacklist.conf
+}
+
+Nv_max () {
+
+sudo tee /etc/modprobe.d/nvidia.conf >/dev/null <<'EOF'
+options nvidia NVreg_UsePageAttributeTable=1 NVreg_RegistryDwords="PowerMizerEnable=0x1;PerfLevelSrc=0x2222;PowerMizerDefault=0x1;PowerMizerDefaultAC=0x1"
+EOF
+
+}
+
+Xprofile () {
 
 # xprofile for nvidia and polkit
-sudo tee ~/.xprofile >/dev/null << 'EOF'
+tee ~/.xprofile >/dev/null <<'EOF'
+export __GL_YIELD="NOTHING"
+export __GL_SYNC_TO_VBLANK=0
+
 if ! pgrep -f nvidia-settings > /dev/null; then
     nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
+    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=66"
+    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=150"
 fi
 if ! pgrep -f polkit-gnome-authentication-agent-1 > /dev/null; then
     /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 fi
 EOF
-sudo chmod +x ~/.xprofile
+
+chmod +x ~/.xprofile
+
+}
+
+Cpu_govern () { 
+
+sudo tee /etc/systemd/system/cpu-governor.service >/dev/null <<'EOF'
+[Unit]
+Description=Set preferred CPU governor at boot
+After=multi-user.target
+
+[Service]
+Type=oneshot
+# ExecStart=/bin/sh -c "echo schedutil | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
+ExecStart=/bin/sh -c "echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable cpu-governor
+
+}
+
+Nv_hook () {
 
 # Pacman hook for nvidia (avoid the possibility of forgetting to update initramfs after an NVIDIA driver upgrade) # Arch wiki
+sudo mkdir -p /etc/pacman.d/hooks
 
-sudo mkdir /etc/pacman.d/hooks
-
-sudo printf "[Trigger]
+sudo tee /etc/pacman.d/hooks/nvidia.hook >/dev/null <<'EOF'
+[Trigger]
 Operation=Install
 Operation=Upgrade
 Operation=Remove
@@ -206,42 +171,68 @@ Description=Update NVIDIA module in initcpio
 Depends=mkinitcpio
 When=PostTransaction
 NeedsTargets
-Exec=/bin/sh -c 'while read -r trg; do case \$trg in linux*) exit 0; esac; done; /usr/bin/mkinitcpio -P'
-" | cat >> nvidia.hook
+Exec=/bin/sh -c 'while read -r trg; do case $trg in linux*) exit 0; esac; done; /usr/bin/mkinitcpio -P'
+EOF
 
-# Hook as per driver installed 
-
-if [[ $input_d = 1 ]]
-then
-    sed -i 's/^Target=nvidia/Target=nvidia-390xx-dkms/' nvidia.hook
-elif [[ $input_d = 2 ]]
-then
-    sed -i 's/^Target=nvidia/Target=nvidia-340xx-dkms/' nvidia.hook
-elif [[ $input_d = 3 ]]
-then
-    sed -i 's/^Target=nvidia/Target=nvidia-470xx-dkms/' nvidia.hook
-fi
-
+# Hook for installed driver 
+sudo sed -i 's/^Target=nvidia/Target=nvidia-390xx-dkms/' /etc/pacman.d/hooks/nvidia.hook
 # kernal in use .. nvhook
+sudo sed -i 's/linux/linux-zen/g' /etc/pacman.d/hooks/nvidia.hook
 
-if [[ $input_k = 1 ]]
-then
-    sed -i 's/linux/linux-zen/g' nvidia.hook
-elif [[ $input_k = 2 ]]
-then
-    sed -i 's/linux/linux-hardened/g' nvidia.hook
-fi
-
-sudo mv nvidia.hook /etc/pacman.d/hooks/
 sudo chmod +x /etc/pacman.d/hooks/nvidia.hook
-sudo chown -hR root:root /etc/pacman.d/hooks/nvidia.hook
+
+}
+
+Gcc_cv () { 
+
+sudo pacman -S --noconfirm gcc
+
+}
+
+Pre_install
+
+clear
+Gcc_v
+
+clear
+Driver
+
+clear
+Nv_xorg
+
+clear
+Display_manager
+
+clear
+Touchpad
+
+clear
+Nv_drm
+
+clear
+Blacklist
+
+clear
+Nv_max
+
+clear
+Xprofile
+
+clear
+Cpu_govern
+
+clear
+Nv_hook
+
+clear
+Gcc_cv
+clear
 
 # Mkinitcpio generate (Initial ramdisk)
-
 sudo mkinitcpio -P
 
 # Done 
-
 echo -ne "
----* Drivers installed  please reboot ( you can re-install gcc if driver installed without error ) !*---                            
+---* Drivers installed  please reboot! *---                            
 "
+

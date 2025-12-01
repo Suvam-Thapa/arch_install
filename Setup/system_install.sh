@@ -22,14 +22,14 @@ uefi
 n
 2
 
-+4G
++8G
 t
 2
 swap
 n
 3
 
-+160G
++120G
 n
 4
 
