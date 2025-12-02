@@ -2,7 +2,7 @@
 
 Pre_install () { 
 
-yay -S --needed --noconfirm nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx
+yay -S --needed --noconfirm nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-nvidia-390xx-utils
 
 }
 

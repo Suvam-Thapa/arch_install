@@ -246,4 +246,5 @@ F_manager
 
 clear
 Def_applications
+xdg-user-dirs-update
 clear
