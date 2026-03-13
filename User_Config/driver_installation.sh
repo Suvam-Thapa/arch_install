@@ -10,11 +10,11 @@ Gcc_v () {
 
 # Note installing nvidia utils using gcc 13 doesn't works so first install it using new gcc after that compile dkms driver
 cd /tmp
-curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
-curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
+curl -O https://archive.archlinux.org/packages/g/gcc/gcc-14.2.1+r753+g1cd744a6828f-1-x86_64.pkg.tar.zst
+curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-14.2.1+r753+g1cd744a6828f-1-x86_64.pkg.tar.zst
 cd
-sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
-export CC=gcc-13
+sudo pacman -U /tmp/gcc-14.2.1+r753+g1cd744a6828f-1-x86_64.pkg.tar.zst /tmp/gcc-libs-14.2.1+r753+g1cd744a6828f-1-x86_64.pkg.tar.zst --noconfirm
+export CC=gcc-14
 
 }
 
@@ -116,6 +116,11 @@ Xprofile () {
 tee ~/.xprofile >/dev/null <<'EOF'
 export __GL_YIELD="NOTHING"
 export __GL_SYNC_TO_VBLANK=0
+export __GL_SHADER_DISK_CACHE="1"
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP="1"
+export __GL_MaxFramesAllowed="1"
+export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_hasvk_icd.json
+export MESA_VK_ANTI_LAG=1
 
 if ! pgrep -f nvidia-settings > /dev/null; then
     nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
@@ -205,7 +210,7 @@ alias ls='ls --color=auto -sah'
 alias grep='grep --color=auto'
 alias svim='sudo -E nvim' 
 
-function y() {
+function yz() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	yazi "$@" --cwd-file="$tmp"
 	IFS= read -r -d '' cwd < "$tmp"

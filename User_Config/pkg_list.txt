@@ -67,6 +67,7 @@ gst-plugins-ugly
 gst-libav
 
 xclip
+yt-dlp
 wget
 ripgrep
 lua51

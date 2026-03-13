@@ -11,6 +11,10 @@ login_manager () {
         echo "Installing SDDM..."
         sudo pacman -S --needed --noconfirm sddm
         sudo systemctl enable sddm
+
+        mkdir -p /etc/sddm.conf.d/ 
+        cp /usr/lib/sddm/sddm.conf.d/default.conf /etc/sddm.conf.d/ 
+        sudo sed -i -e 's/^Session=.*/Session=dwm.desktop/' -e 's/^User=.*/User=suvam/' -e 's/^EnableAvatars=true/EnableAvatars=false/' /etc/sddm.conf.d/default.conf
 }
 
 window_manager () {
@@ -19,24 +23,25 @@ window_manager () {
         cd ~/.config
         git clone https://git.suckless.org/dwm 
         cd ~/.config/dwm/
+        curl -O https://dwm.suckless.org/patches/keysequence/keysequence-20250606-0d6af14.diff
+        patch -p1 < keysequence-20250606-0d6af14.diff
 
 tee ~/.config/dwm/config.def.h > /dev/null <<'EOF'
 /* appearance */
-static const unsigned int borderpx  = 0;   
+static const unsigned int borderpx  = 0;
 static const unsigned int snap      = 24; 
 static const int showbar            = 0;   
 static const int topbar             = 1;  
-static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=10" };
-static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10";
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#52616B";
+static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=12" };
+static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=14";
+static const char col_bg[]          = "#FDF6E3";
+static const char col_fg[]          = "#5C6A72";
+static const char col_sel_bg[]      = "#F0F1D2";
+static const char col_sel_fg[]      = "#F57D26";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },  // col_cyan
+	[SchemeNorm] = { col_fg, col_bg, col_bg },
+	[SchemeSel]  = { col_sel_fg, col_sel_bg,  col_sel_fg }, 
 };
 
 /* tagging */
@@ -48,7 +53,7 @@ static const float mfact     = 0.50; /* factor of master area size [0.05..0.95] 
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
-static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize */
+static const int refreshrate = 144;  /* refresh rate (per second) for client move/resize */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -58,51 +63,88 @@ static const Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod1Mask
-#define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
 static char dmenumon[2] = "0"; 
-static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL};
+static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_bg, "-nf", col_fg, "-sb", col_sel_bg, "-sf", col_sel_fg, NULL};
 static const char *termcmd[]  = {"alacritty", NULL};
 static const char *browser[] = {"vivaldi-stable" , "--disable-gpu-vsync", NULL};
 static const char *gnome_screenshot[] = {"gnome-screenshot", "-i", NULL};
 static const char *thunar[] = {"thunar", NULL};
 static const char *brightness_inc[] = {"brightnessctl", "s", "+10%", NULL};
 static const char *brightness_dec[] = {"brightnessctl", "s", "10%-", NULL};
+static const char *volume[] = {"pavucontrol", NULL};
+static const char *reboot[] = {"reboot", NULL};
 
-static const Key keys[] = {
+static Key keyseq_ctrlsemicolon[] = {
+
+	/* modifier      key        function        argument */
+
+    /* Essential bindings  */
+    { 0,            XK_r,       spawn,          {.v = reboot } },
+	{ 0,            XK_q,       killclient,     {0} },
+	{ 0,            XK_c,       quit,           {0} },
+    { 0,            XK_Tab,     view,           {0} },
+    { 0,            XK_Return,  zoom,           {0} },
+
+    /* Tag Keys */
+    { 0,            XK_1,       view,           {.ui = 1 << 0 } },
+    { 0,            XK_2,       view,           {.ui = 1 << 1 } },
+    { 0,            XK_3,       view,           {.ui = 1 << 2 } },
+    { 0,            XK_4,       view,           {.ui = 1 << 3 } },
+
+	/* Layouts */
+	{ 0,            XK_j,       setlayout,      {.v = &layouts[0]} },
+	{ 0,            XK_k,       setlayout,      {.v = &layouts[1]} },
+    {0}
+};
+
+
+static Key keyseq_ctrlperiod[] = {
+
+    /* Applications */
+    { 0,            XK_p,       spawn,          {.v = dmenucmd } },
+    { 0,            XK_b,       spawn,          {.v = browser } },
+    { 0,            XK_e,       spawn,          {.v = thunar } },
+    { 0,            XK_s,       spawn,          {.v = gnome_screenshot } },
+    { 0,            XK_v,       spawn,          {.v = volume } },
+    { 0,            XK_Return,  spawn,          {.v = termcmd } },
+
+
+    /* Essential bindings  */
+    { 0,            XK_h,       incnmaster,     {.i = +1 } },
+    { 0,            XK_j,       focusstack,     {.i = +1 } },
+    { 0,            XK_k,       focusstack,     {.i = -1 } },
+    { 0,            XK_l,       incnmaster,     {.i = -1 } },
+
+    /* Tag Keys */
+    { 0,            XK_1,       tag,           {.ui = 1 << 0 } },
+    { 0,            XK_2,       tag,           {.ui = 1 << 1 } },
+    { 0,            XK_3,       tag,           {.ui = 1 << 2 } },
+    { 0,            XK_4,       tag,           {.ui = 1 << 3 } },
+	{0}
+};
+
+
+static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY|ShiftMask,     		XK_c,       quit,           {0} },
-	{ MODKEY|ShiftMask,     		XK_q,       killclient,     {0} },
-	{ MODKEY,           			XK_p,       spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return,  zoom,           {0} },
-	{ MODKEY,                		XK_Return,  spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_b,       togglebar,      {0} },
-	{ MODKEY|ShiftMask,             XK_b,       spawn,          {.v = browser } },
-	{ MODKEY,                       XK_e,       spawn,          {.v = thunar } },
+	
+	/* Essential bindings */
+    { MODKEY,                       XK_b,       togglebar,      {0} },
     { MODKEY|ShiftMask,             XK_minus,   spawn,          {.v = brightness_dec } },
     { MODKEY|ShiftMask,             XK_equal,   spawn,          {.v = brightness_inc } },
-    { MODKEY|ShiftMask,             XK_s,       spawn,          {.v = gnome_screenshot } },
-    { MODKEY,                       XK_Tab,     view,           {0} },
-    { MODKEY,                       XK_h,       setmfact,       {.f = -0.05} },
-    { MODKEY,                       XK_j,       focusstack,     {.i = +1 } },
-    { MODKEY,                       XK_k,       focusstack,     {.i = -1 } },
-    { MODKEY,                       XK_l,       setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_i,       incnmaster,     {.i = +1 } },
-    { MODKEY,                       XK_d,       incnmaster,     {.i= -1 } },
-	{ MODKEY,                       XK_n,       setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_period,  setlayout,      {.v = &layouts[0]} },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
+	
+	/* Window navigation */
+	{ MODKEY,                       XK_h,       setmfact,       {.f = -0.05} },
+	{ MODKEY,                       XK_l,       setmfact,       {.f = +0.05} },
+	
+	/* Ctrl+; && Ctrl+. sequence prefix */
+	{ ControlMask,                  XK_semicolon,   keypress_other,     {.v = keyseq_ctrlsemicolon} },
+    { ControlMask,                  XK_period,      keypress_other,     {.v = keyseq_ctrlperiod} },
+	{0}
 };
 
 /* button definitions */
