@@ -11,10 +11,6 @@ login_manager () {
         echo "Installing SDDM..."
         sudo pacman -S --needed --noconfirm sddm
         sudo systemctl enable sddm
-
-        mkdir -p /etc/sddm.conf.d/ 
-        cp /usr/lib/sddm/sddm.conf.d/default.conf /etc/sddm.conf.d/ 
-        sudo sed -i -e 's/^Session=.*/Session=dwm.desktop/' -e 's/^User=.*/User=suvam/' -e 's/^EnableAvatars=true/EnableAvatars=false/' /etc/sddm.conf.d/default.conf
 }
 
 window_manager () {
