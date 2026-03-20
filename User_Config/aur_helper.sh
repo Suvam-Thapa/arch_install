@@ -1,6 +1,6 @@
 #!/bin/bash                                                    
 
-sudo pacman -S --needed --noconfirm base-devel git
+sudo pacman -Sy --needed --noconfirm base-devel git
 
 mkdir -p ~/AUR
 cd ~/AUR
