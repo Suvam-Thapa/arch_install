@@ -7,12 +7,12 @@ source $Conf_Dir/exec.sh
 mkdir -p /tmp/kernels
 cd /tmp/kernels
 
-curl -LO https://archive.archlinux.org/packages/l/linux-zen/linux-zen-6.12.zen1-1-x86_64.pkg.tar.zst
-curl -LO https://archive.archlinux.org/packages/l/linux-zen-headers/linux-zen-headers-6.12.zen1-1-x86_64.pkg.tar.zst
+curl -LO https://archive.archlinux.org/packages/l/linux-zen/linux-zen-6.6.zen1-1-x86_64.pkg.tar.zst
+curl -LO https://archive.archlinux.org/packages/l/linux-zen-headers/linux-zen-headers-6.6.zen1-1-x86_64.pkg.tar.zst
 
 cd 
 
-sudo pacman -U /tmp/kernels/linux-zen-6.12.zen1-1-x86_64.pkg.tar.zst /tmp/kernels/linux-zen-headers-6.12.zen1-1-x86_64.pkg.tar.zst --noconfirm
+sudo pacman -U /tmp/kernels/linux-zen-6.6.zen1-1-x86_64.pkg.tar.zst /tmp/kernels/linux-zen-headers-6.6.zen1-1-x86_64.pkg.tar.zst --noconfirm
 
 ln -sf /usr/share/zoneinfo/$t_zone /etc/localtime
 
@@ -56,7 +56,7 @@ sed -i 's/^#Color/Color/' /etc/pacman.conf
 sudo tee -a /etc/pacman.conf >/dev/null <<'EOF'
 
 
-# --- lock kernel to 6.12.zen1 ---
+# --- lock kernel to 6.6.zen1 ---
 [options]
 IgnorePkg = linux-zen linux-zen-headers
 
