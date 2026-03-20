@@ -13,7 +13,7 @@ cd /tmp
 curl -O https://archive.archlinux.org/packages/g/gcc/gcc-13.2.1-6-x86_64.pkg.tar.zst
 curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst
 cd
-sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm
+sudo pacman -U /tmp/gcc-13.2.1-6-x86_64.pkg.tar.zst /tmp/gcc-libs-13.2.1-6-x86_64.pkg.tar.zst --noconfirm --overwrite '*'
 export CC=gcc-13
 
 }
@@ -190,7 +190,8 @@ sudo chmod +x /etc/pacman.d/hooks/nvidia.hook
 
 Gcc_cv () { 
 
-sudo pacman -S --noconfirm gcc
+su -c "pacman -S gcc gcc-libs && cp -r /tmp/usr/lib/* /usr/lib/ && pacman -S gcc gcc-libs && exit"
+sudo pacman -S gcc gcc-libs
 
 }
 
