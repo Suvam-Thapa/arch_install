@@ -58,7 +58,7 @@ sudo tee -a /etc/pacman.conf >/dev/null <<'EOF'
 
 # --- lock kernel to 6.12.zen1 ---
 [options]
-IgnorePkg = linux-zen linux-zen-headers
+IgnorePkg = linux-zen linux-zen-headers nvidia-390xx-dkms nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx
 
 # --- multilib support ---
 [multilib]

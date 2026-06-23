@@ -72,6 +72,8 @@ wget
 ripgrep
 lua51
 luarocks
+lua-language-server
+libvterm
 fd
 yazi
 lazygit
@@ -95,3 +97,9 @@ lib32-gst-plugins-base
 lib32-gst-plugins-good
 lib32-libgl
 lib32-glu
+gamemode
+lib32-gamemode
+lib32-vkd3d
+vkd3d
+vulkan-tools
+lutris

@@ -30,7 +30,7 @@ static const int showbar            = 0;
 static const int topbar             = 1;  
 static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=12" };
 static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=14";
-static const char col_bg[]          = "#FDF6E3";
+static const char col_bg[]          = "#fffbef";
 static const char col_fg[]          = "#5C6A72";
 static const char col_sel_bg[]      = "#F0F1D2";
 static const char col_sel_fg[]      = "#F57D26";
@@ -74,6 +74,7 @@ static const char *brightness_inc[] = {"brightnessctl", "s", "+10%", NULL};
 static const char *brightness_dec[] = {"brightnessctl", "s", "10%-", NULL};
 static const char *volume[] = {"pavucontrol", NULL};
 static const char *reboot[] = {"reboot", NULL};
+static const char *emacs[] = {"emacs", NULL};
 
 static Key keyseq_ctrlsemicolon[] = {
 
@@ -107,6 +108,7 @@ static Key keyseq_ctrlperiod[] = {
     { 0,            XK_e,       spawn,          {.v = thunar } },
     { 0,            XK_s,       spawn,          {.v = gnome_screenshot } },
     { 0,            XK_v,       spawn,          {.v = volume } },
+    { 0,            XK_o,       spawn,          {.v = emacs } },
     { 0,            XK_Return,  spawn,          {.v = termcmd } },
 
 
@@ -199,7 +201,7 @@ size = 12.2
 
 [keyboard]
 bindings = [
-  { key = "Back", mods = "Control", chars = "\u001B\u007F" }
+  { key = "Back", mods = "Control", chars = "\u0017" }
 ]
 
 # [selection]
@@ -216,7 +218,7 @@ bindings = [
 
 # Default colors
 [colors.primary]
-background = '#fdf6e3'
+background = '#fffbef'
 foreground = '#5c6a72'
 
 # Normal colors
@@ -259,6 +261,22 @@ Jetbrains_font () {
         sudo mv ~/JetBrainsMono/ /usr/share/fonts/
 }
 
+zram_initialize () {
+        echo "Zram Initialization..."
+sudo tee /etc/systemd/zram-generator.conf > /dev/null <<'EOF'
+# /etc/systemd/zram-generator.conf
+[zram0]
+zram-size = 3072
+compression-algorithm = zstd
+swap-priority = 120
+EOF
+
+sudo tee /etc/sysctl.d/99-zram.conf > /dev/null <<'EOF'
+# /etc/sysctl.d/99-zram.conf
+vm.swappiness = 80
+EOF
+}
+
 Def_applications () {
         echo "Installing Additional Packages..."
         yay -S --needed --noconfirm $(grep -v '^#' "$Conf_Dir/pkg_list.txt" | grep -v '^$')
@@ -281,6 +299,8 @@ terminal
 clear
 F_manager
 
+clear
+zram_initialize
 
 clear
 Def_applications

@@ -8,7 +8,7 @@ yay -S --needed --noconfirm nvidia-390xx-utils nvidia-390xx-settings opencl-nvid
 
 Gcc_v () {
 
-# Note installing nvidia utils using gcc 13 doesn't works so first install it using new gcc after that compile dkms driver
+# Note installing nvidia utils using gcc 14 doesn't works so first install it using new gcc after that compile dkms driver
 cd /tmp
 curl -O https://archive.archlinux.org/packages/g/gcc/gcc-14.2.1+r753+g1cd744a6828f-1-x86_64.pkg.tar.zst
 curl -O https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-14.2.1+r753+g1cd744a6828f-1-x86_64.pkg.tar.zst
@@ -80,6 +80,7 @@ Option "Tapping" "on"
 Option "TappingButtonMap" "lmr"
 Option "ClickMethod" "clickfinger"
 Option "NaturalScrolling" "true"
+Option "DisableWhileTyping" "0"
 EndSection
 EOF
 
@@ -125,8 +126,8 @@ export MESA_VK_ANTI_LAG=1
 
 if ! pgrep -f nvidia-settings > /dev/null; then
     nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
-    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=66"
-    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=150"
+    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=76"
+    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=180"
 fi
 if ! pgrep -f polkit-gnome-authentication-agent-1 > /dev/null; then
     /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
@@ -204,6 +205,7 @@ eval "$(zoxide init bash)"
 alias ls='ls --color=auto -sah'
 alias grep='grep --color=auto'
 alias svim='sudo -E nvim' 
+# alias va='source ~/.py_venv/bin/activate'
 
 function yz() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
