@@ -11,6 +11,11 @@ login_manager () {
         echo "Installing SDDM..."
         sudo pacman -S --needed --noconfirm sddm
         sudo systemctl enable sddm
+	sudo mkdir -p /etc/sddm.conf.d/
+	sudo cp /usr/lib/sddm/sddm.conf.d/default.conf /etc/sddm.conf.d/
+	sudo sed -i '/\[Autologin\]/,/\[General\]/ s/^Session=/Session=dwm/' /etc/sddm.conf.d/default.conf
+	sudo sed -i '/\[Autologin\]/,/\[General\]/ s/^Relogin=false/Relogin=true/' /etc/sddm.conf.d/default.conf
+	sudo sed -i '/\[Autologin\]/,/\[General\]/ s/^User=/User=suvam/' /etc/sddm.conf.d/default.conf
 }
 
 window_manager () {
@@ -28,12 +33,12 @@ static const unsigned int borderpx  = 0;
 static const unsigned int snap      = 24; 
 static const int showbar            = 0;   
 static const int topbar             = 1;  
-static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=12" };
-static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=14";
-static const char col_bg[]          = "#fffbef";
-static const char col_fg[]          = "#5C6A72";
-static const char col_sel_bg[]      = "#F0F1D2";
-static const char col_sel_fg[]      = "#F57D26";
+static const char *fonts[]          = { "CaskaydiaCove Nerd Font:size=12" };
+static const char dmenufont[]       = "CaskaydiaCove Nerd Font:size=14";
+static const char col_bg[]          = "#101319";
+static const char col_fg[]          = "#f4f3ee";
+static const char col_sel_bg[]      = "#956dca";
+static const char col_sel_fg[]      = "#101319";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_fg, col_bg, col_bg },
@@ -189,15 +194,15 @@ tee ~/.config/alacritty/alacritty.toml >/dev/null <<'EOF'
 live_config_reload = true
 
 [window]
-padding = { x = 0 , y = 0 }
+padding = { x = 0 , y = 10 }
 dynamic_padding = false 
 
 [font]
-normal = { family = "JetBrainsMono Nerd Font", style = "Regular"}
-bold = { family = "JetBrainsMono Nerd Font", style = "Bold"}
-italic = { family = "JetBrainsMono Nerd Font", style = "Italic"}
-bold_italic = { family = "JetBrainsMono Nerd Font", style = "Bold Italic"}
-size = 12.2
+normal = { family = "CaskaydiaCove Nerd Font", style = "Regular"}
+bold = { family = "CaskaydiaCove Nerd Font", style = "Bold"}
+italic = { family = "CaskaydiaCove Nerd Font", style = "Italic"}
+bold_italic = { family = "CaskaydiaCove Nerd Font", style = "Bold Italic"}
+size=12.45
 
 [keyboard]
 bindings = [
@@ -218,30 +223,61 @@ bindings = [
 
 # Default colors
 [colors.primary]
-background = '#fffbef'
-foreground = '#5c6a72'
+background = "#101319"
+foreground = "#f4f3ee"
+dim_foreground = "#dddbcf"
 
-# Normal colors
+[colors.cursor]
+text = "#101319"
+cursor = "#e34f4f"
+
+[colors.vi_mode_cursor]
+text = "#101319"
+cursor = "#956dca"
+
+[colors.selection]
+text = "#171b24"
+background = "#956dca"
+
+[colors.search.matches]
+foreground = "#171b24"
+background = "#de642b"
+
+[colors.search.focused_match]
+foreground = "#171b24"
+background = "#885ac4"
+
 [colors.normal]
-black = '#5c6a72'
-red = '#f85552'
-green = '#8da101'
-yellow = '#dfa000'
-blue = '#3a94c5'
-magenta = '#df69ba'
-cyan = '#35a77c'
-white = '#e0dcc7'
+black = "#171b24"
+red = "#de2b2b"
+green = "#69bfce"
+yellow = "#de642b"
+blue = "#3f8cde"
+magenta = "#956dca"
+cyan = "#56b7c8"
+white = "#dddbcf"
 
-# Bright Colors
 [colors.bright]
-black = '#5c6a72'
-red = '#f85552'
-green = '#8da101'
-yellow = '#dfa000'
-blue = '#3a94c5'
-magenta = '#df69ba'
-cyan = '#35a77c'
-white = '#e0dcc7'
+black = "#3a435a"
+red = "#e34f4f"
+green = "#885ac4"
+yellow = "#e37e4f"
+blue = "#5679e3"
+magenta = "#5599e2"
+cyan = "#3e66e0"
+white = "#f4f3ee"
+
+[colors.line_indicator]
+foreground = "None"
+background = "#171b24"
+
+[[colors.indexed_colors]]
+index = 16
+color = "#de642b"
+
+[[colors.indexed_colors]]
+index = 17
+color = "#5679e3"
 EOF
 
 }
@@ -251,14 +287,14 @@ F_manager () {
         sudo pacman -S --needed --noconfirm thunar tumbler thunar-volman
 }
 
-Jetbrains_font () {
-        echo "Installing JetBrainsMono Nerd Font..."
-        curl -fLo /tmp/JetBrainsMono.zip \
-        https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip && \
-        7z x /tmp/JetBrainsMono.zip -o"$HOME/JetBrainsMono" -y && \
-        rm -rf /tmp/JetBrainsMono.zip
+CascadiaCode_font () {
+        echo "Installing CascadiaCode Nerd Font..."
+        curl -fLo /tmp/CascadiaCode.zip \
+        https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/CascadiaCode.zip && \
+        7z x /tmp/CascadiaCode.zip -o"$HOME/CascadiaCode" -y && \
+        rm -rf /tmp/CascadiaCode.zip
 
-        sudo mv ~/JetBrainsMono/ /usr/share/fonts/
+        sudo mv ~/CascadiaCode/ /usr/share/fonts/
 }
 
 zram_initialize () {
@@ -285,7 +321,7 @@ Def_applications () {
 D_server
 
 clear
-Jetbrains_font
+CascadiaCode_font
 
 clear
 window_manager

@@ -126,8 +126,8 @@ export MESA_VK_ANTI_LAG=1
 
 if ! pgrep -f nvidia-settings > /dev/null; then
     nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
-    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=76"
-    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=180"
+    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=66"
+    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=150"
 fi
 if ! pgrep -f polkit-gnome-authentication-agent-1 > /dev/null; then
     /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
@@ -202,10 +202,10 @@ tee ~/.bashrc >/dev/null <<'EOF'
 
 eval "$(zoxide init bash)"
 
-alias ls='ls --color=auto -sah'
+alias ls='ls --color=auto -ash'
 alias grep='grep --color=auto'
 alias svim='sudo -E nvim' 
-# alias va='source ~/.py_venv/bin/activate'
+alias va='source ~/.py_venv/bin/activate'
 
 function yz() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
@@ -264,6 +264,7 @@ sudo mkinitcpio -P
 
 # Done 
 echo -ne "
----* Drivers installed  please reboot! ( Re-install gcc using su cp -r /tmp/usr/lib/* /usr/lib/)*---                            
+---* Drivers installed  please reboot! ( Re-install gcc using su cp -r /tmp/usr/lib/* /usr/lib/ )*---                            
+---* Set Python venv if needed ( python -m venv .py_venv/ )*---
 "
 
