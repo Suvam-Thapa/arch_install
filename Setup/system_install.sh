@@ -22,7 +22,7 @@ uefi
 n
 2
 
-+4G
++2G
 t
 2
 swap
@@ -100,6 +100,7 @@ else
 fi
 
 pacstrap -K /mnt base base-devel linux-firmware mesa intel-ucode pipewire pipewire-pulse pavucontrol xdg-utils xdg-user-dirs networkmanager gvfs ntfs-3g grub efibootmgr 7zip neovim git zram-generator --noconfirm
+
 clear
 
 genfstab -U /mnt >> /mnt/etc/fstab

@@ -41,23 +41,40 @@ sudo chmod +x /usr/share/sddm/scripts/Xsetup
 Nv_xorg () { 
 
 # Configuration for xorg 
-sudo tee /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf >/dev/null <<'EOF'
-Section "OutputClass"
-    Identifier "intel"
-    MatchDriver "i915"
-    Driver "modesetting"
-    Option "UseEDID" "true"
-    Option "ModeValidation" "NoVirtualSizeCheck"
+sudo tee /etc/X11/xorg.conf.d/20-nvidia.conf >/dev/null <<'EOF'
+Section "ServerLayout"
+    Identifier "layout"
+    Screen 0 "nvidia"
+    Inactive "intel"
 EndSection
 
-Section "OutputClass"
+Section "Device"
     Identifier "nvidia"
-    MatchDriver "nvidia-drm"
     Driver "nvidia"
-    Option "PrimaryGPU" "yes"
-    Option "AllowEmptyInitialConfiguration" "true"
-    Option "AllowExternalGpus" "true"
+    BusID  "PCI:8:0:0"
     Option "Coolbits" "28"
+    Option "PrimaryGPU" "yes"
+EndSection
+
+Section "Screen"
+    Identifier "nvidia"
+    Device "nvidia"
+    Option "AllowEmptyInitialConfiguration"
+    Option "DPI" "100 x 100"
+EndSection
+
+Section "Device"
+    Identifier "intel"
+    Driver "modesetting"
+    BusID  "PCI:0:2:0"
+EndSection
+
+Section "Screen"
+    Identifier "intel"
+    Device "intel"
+EndSection
+
+Section "Files"
     ModulePath "/usr/lib/nvidia/xorg"
     ModulePath "/usr/lib/xorg/modules"
 EndSection
@@ -116,18 +133,28 @@ Xprofile () {
 
 # xprofile for nvidia and polkit
 tee ~/.xprofile >/dev/null <<'EOF'
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export __NV_PRIME_RENDER_OFFLOAD=1
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+export __GL_THREADED_OPTIMIZATIONS=1
 export __GL_YIELD="NOTHING"
 export __GL_SYNC_TO_VBLANK=0
 export __GL_SHADER_DISK_CACHE="1"
 export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP="1"
 export __GL_MaxFramesAllowed="1"
+export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_hasvk_icd.json
 export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_hasvk_icd.json
 export MESA_VK_ANTI_LAG=1
 
+xsetroot -solid "#000000"
+
+# systemctl --user import-environment DISPLAY XAUTHORITY
+# systemctl --user restart emacs
+
 if ! pgrep -f nvidia-settings > /dev/null; then
     nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
-    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=66"
-    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=150"
+    nvidia-settings -a "[gpu:0]/GPUGraphicsClockOffset[1]=86"
+    nvidia-settings -a "[gpu:0]/GPUMemoryTransferRateOffset[1]=220"
 fi
 if ! pgrep -f polkit-gnome-authentication-agent-1 > /dev/null; then
     /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
@@ -203,9 +230,27 @@ tee ~/.bashrc >/dev/null <<'EOF'
 eval "$(zoxide init bash)"
 
 alias ls='ls --color=auto -ash'
+alias p='sudo pacman'
+alias sure='systemctl --user restart emacs'
 alias grep='grep --color=auto'
 alias svim='sudo -E nvim' 
 alias va='source ~/.py_venv/bin/activate'
+
+export LS_COLORS="di=01;38;2;7;102;120:\
+ln=01;38;2;66;123;88:\
+so=38;2;143;63;113:\
+pi=38;2;181;118;20:\
+ex=01;38;2;121;116;14:\
+bd=38;2;175;58;3;01:\
+cd=38;2;175;58;3;01:\
+su=38;2;157;0;6;01:\
+sg=38;2;157;0;6;01:\
+tw=38;2;7;102;120;01:\
+ow=38;2;7;102;120;01:\
+*.tar=38;2;175;58;3:*.zip=38;2;175;58;3:*.gz=38;2;175;58;3:*.xz=38;2;175;58;3:\
+*.jpg=38;2;143;63;113:*.png=38;2;143;63;113:*.gif=38;2;143;63;113:*.mp4=38;2;143;63;113:\
+*.md=38;2;181;118;20:*.txt=38;2;181;118;20:*.pdf=38;2;181;118;20:\
+*.py=38;2;66;123;88:*.rs=38;2;66;123;88:*.c=38;2;66;123;88"
 
 function yz() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
