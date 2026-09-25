@@ -82,7 +82,6 @@ less
 sccache
 mold
 tree-sitter-cli
-emacs
 python-black
 
 npm
